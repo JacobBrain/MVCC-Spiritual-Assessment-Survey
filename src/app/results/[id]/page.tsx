@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
+import Link from 'next/link';
 import { GiftCategory, GiftScores, Recommendation } from '@/types';
 import { giftDescriptions, giftDisplayNames } from '@/lib/questions';
 
@@ -83,7 +85,7 @@ export default function ResultsPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading your results...</p>
         </div>
       </div>
@@ -99,13 +101,31 @@ export default function ResultsPage() {
     .sort((a, b) => b.score - a.score);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-teal-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <h1 className="text-xl font-semibold text-teal-700">
-            Mountain View Community Church
-          </h1>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Image
+                src="/logo.png"
+                alt="MVCC Logo"
+                width={40}
+                height={40}
+                className="rounded-lg"
+              />
+              <div>
+                <h1 className="text-lg font-semibold text-gray-900">Spiritual Gifts Assessment</h1>
+                <p className="text-xs text-gray-500">Mountain View Community Church</p>
+              </div>
+            </div>
+            <Link
+              href="/"
+              className="text-teal-600 hover:text-teal-700 font-medium text-sm"
+            >
+              &larr; Back to Home
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -166,7 +186,7 @@ export default function ResultsPage() {
                   {giftDisplayNames[item.gift]}
                 </div>
                 <div className="flex-1">
-                  <div className="w-full bg-gray-200 rounded-full h-4">
+                  <div className="w-full bg-gray-100 rounded-full h-4">
                     <div
                       className={`h-4 rounded-full transition-all duration-500 ${
                         item.score >= 16 ? 'bg-green-500' :
@@ -218,7 +238,7 @@ export default function ResultsPage() {
                 return (
                   <div
                     key={index}
-                    className="bg-white rounded-xl shadow-md p-6 border border-gray-100"
+                    className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-start justify-between mb-3">
                       <h4 className="text-lg font-semibold text-gray-900">
@@ -270,7 +290,7 @@ export default function ResultsPage() {
               href="https://mvccfrederick.com/serve"
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-8 rounded-lg transition"
+              className="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors"
             >
               Explore Serving Opportunities
             </a>
@@ -280,7 +300,7 @@ export default function ResultsPage() {
                 sessionStorage.removeItem('assessmentResults');
                 router.push('/');
               }}
-              className="bg-white hover:bg-gray-50 text-gray-700 font-semibold py-3 px-8 rounded-lg border border-gray-300 transition"
+              className="bg-white hover:bg-gray-50 text-gray-700 font-semibold py-3 px-8 rounded-lg border border-gray-300 transition-colors"
             >
               Start Over
             </button>
@@ -289,9 +309,11 @@ export default function ResultsPage() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-gray-50 py-8">
-        <div className="max-w-4xl mx-auto px-4 text-center text-gray-600 text-sm">
-          <p>&copy; {new Date().getFullYear()} Mountain View Community Church</p>
+      <footer className="bg-gray-50 border-t border-gray-100">
+        <div className="max-w-4xl mx-auto px-4 py-8 text-center">
+          <p className="text-sm text-gray-500">
+            &copy; {new Date().getFullYear()} Mountain View Community Church
+          </p>
         </div>
       </footer>
     </div>

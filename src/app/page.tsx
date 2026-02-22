@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export default function LandingPage() {
   const router = useRouter();
@@ -38,13 +39,23 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-teal-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <h1 className="text-xl font-semibold text-teal-700">
-            Mountain View Community Church
-          </h1>
+          <div className="flex items-center gap-3">
+            <Image
+              src="/logo.png"
+              alt="MVCC Logo"
+              width={40}
+              height={40}
+              className="rounded-lg"
+            />
+            <div>
+              <h1 className="text-lg font-semibold text-gray-900">Spiritual Gifts Assessment</h1>
+              <p className="text-xs text-gray-500">Mountain View Community Church</p>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -62,7 +73,7 @@ export default function LandingPage() {
 
         {/* How It Works */}
         <div className="grid md:grid-cols-3 gap-8 mb-12">
-          <div className="bg-white rounded-xl p-6 shadow-md text-center">
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 text-center">
             <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -74,7 +85,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-md text-center">
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 text-center">
             <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
@@ -86,7 +97,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-md text-center">
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 text-center">
             <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -100,78 +111,92 @@ export default function LandingPage() {
         </div>
 
         {/* Sign Up Form */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md mx-auto">
-          <h3 className="text-2xl font-semibold text-gray-900 mb-6 text-center">
-            Get Started
-          </h3>
+        <div className="max-w-md mx-auto">
+          <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+            <h3 className="text-2xl font-semibold text-gray-900 mb-6 text-center">
+              Get Started
+            </h3>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
+                    First Name
+                  </label>
+                  <input
+                    type="text"
+                    id="firstName"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition-colors"
+                    placeholder="John"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
+                    Last Name
+                  </label>
+                  <input
+                    type="text"
+                    id="lastName"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition-colors"
+                    placeholder="Doe"
+                  />
+                </div>
+              </div>
+
               <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
-                  First Name
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Email
                 </label>
                 <input
-                  type="text"
-                  id="firstName"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition"
-                  placeholder="John"
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition-colors"
+                  placeholder="john@example.com"
                 />
               </div>
-              <div>
-                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
-                  Last Name
-                </label>
-                <input
-                  type="text"
-                  id="lastName"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition"
-                  placeholder="Doe"
-                />
-              </div>
-            </div>
 
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition"
-                placeholder="john@example.com"
-              />
-            </div>
+              {error && (
+                <p className="text-red-600 text-sm">{error}</p>
+              )}
 
-            {error && (
-              <p className="text-red-500 text-sm">{error}</p>
-            )}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    Loading...
+                  </span>
+                ) : (
+                  'Get Started'
+                )}
+              </button>
+            </form>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? 'Loading...' : 'Get Started'}
-            </button>
-          </form>
-
-          <p className="text-xs text-gray-500 text-center mt-4">
-            Takes about 10-15 minutes to complete
-          </p>
+            <p className="text-xs text-gray-500 text-center mt-4">
+              Takes about 10-15 minutes to complete
+            </p>
+          </div>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="bg-gray-50 mt-16 py-8">
-        <div className="max-w-4xl mx-auto px-4 text-center text-gray-600 text-sm">
-          <p>&copy; {new Date().getFullYear()} Mountain View Community Church</p>
+      <footer className="bg-gray-50 border-t border-gray-100 mt-16">
+        <div className="max-w-4xl mx-auto px-4 py-8 text-center">
+          <p className="text-sm text-gray-500">
+            &copy; {new Date().getFullYear()} Mountain View Community Church
+          </p>
         </div>
       </footer>
     </div>

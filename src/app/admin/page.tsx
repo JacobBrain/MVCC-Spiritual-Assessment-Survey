@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Assessment, GiftCategory } from '@/types';
 import { giftDisplayNames } from '@/lib/questions';
@@ -41,6 +41,24 @@ export default function AdminDashboard() {
     fetchAssessments();
   }, []);
 
+  const stats = useMemo(() => {
+    if (assessments.length === 0) return null;
+
+    const giftCounts: Record<string, number> = {};
+    assessments.forEach((a) => {
+      [a.top_gift_1, a.top_gift_2, a.top_gift_3].filter(Boolean).forEach((gift) => {
+        giftCounts[gift!] = (giftCounts[gift!] || 0) + 1;
+      });
+    });
+
+    const topGifts = Object.entries(giftCounts)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 3)
+      .map(([gift, count]) => ({ gift: gift as GiftCategory, count }));
+
+    return { total: assessments.length, topGifts };
+  }, [assessments]);
+
   const handleFilter = () => {
     fetchAssessments();
   };
@@ -57,10 +75,20 @@ export default function AdminDashboard() {
     window.location.href = '/api/admin/export';
   };
 
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow">
+      <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
@@ -73,15 +101,32 @@ export default function AdminDashboard() {
               href="/"
               className="text-teal-600 hover:text-teal-700 font-medium"
             >
-              ← Back to Assessment
+              &larr; Back to Assessment
             </Link>
           </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-8">
+        {/* Stats Cards */}
+        {stats && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+              <p className="text-sm text-gray-500">Total Assessments</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+            </div>
+            {stats.topGifts.map(({ gift, count }, i) => (
+              <div key={gift} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+                <p className="text-sm text-gray-500">#{i + 1} Most Common</p>
+                <p className="text-lg font-bold text-gray-900">{giftDisplayNames[gift]}</p>
+                <p className="text-sm text-teal-600">{count} mentions</p>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Filters */}
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -141,13 +186,13 @@ export default function AdminDashboard() {
             <div className="flex items-end gap-2">
               <button
                 onClick={handleFilter}
-                className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-medium py-2 px-4 rounded-lg transition"
+                className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
               >
                 Filter
               </button>
               <button
                 onClick={handleClearFilters}
-                className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-lg transition"
+                className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors"
               >
                 Clear
               </button>
@@ -162,7 +207,7 @@ export default function AdminDashboard() {
           </p>
           <button
             onClick={handleExport}
-            className="flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 rounded-lg border border-gray-300 transition"
+            className="flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 rounded-lg border border-gray-300 transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -172,10 +217,10 @@ export default function AdminDashboard() {
         </div>
 
         {/* Assessments Table */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           {loading ? (
             <div className="p-12 text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-600 mx-auto"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto"></div>
             </div>
           ) : assessments.length === 0 ? (
             <div className="p-12 text-center text-gray-500">
@@ -215,7 +260,7 @@ export default function AdminDashboard() {
                         {assessment.email}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-gray-600">
-                        {new Date(assessment.created_at).toLocaleDateString()}
+                        {formatDate(assessment.created_at)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex gap-1">

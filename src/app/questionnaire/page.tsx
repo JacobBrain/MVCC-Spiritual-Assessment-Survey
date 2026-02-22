@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { questions } from '@/lib/questions';
 import { teams } from '@/lib/teams';
 import { QuestionResponse } from '@/types';
@@ -94,7 +95,7 @@ export default function QuestionnairePage() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
       </div>
     );
   }
@@ -105,9 +106,18 @@ export default function QuestionnairePage() {
       <header className="sticky top-0 bg-white shadow-sm z-10">
         <div className="max-w-3xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-2">
-            <h1 className="text-lg font-semibold text-teal-700">
-              Spiritual Gifts Assessment
-            </h1>
+            <div className="flex items-center gap-2">
+              <Image
+                src="/logo.png"
+                alt="MVCC Logo"
+                width={32}
+                height={32}
+                className="rounded-lg"
+              />
+              <h1 className="text-lg font-semibold text-gray-900">
+                Spiritual Gifts Assessment
+              </h1>
+            </div>
             <span className="text-sm text-gray-600">
               {answeredCount} of {totalQuestions} answered
             </span>
@@ -121,10 +131,10 @@ export default function QuestionnairePage() {
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-4 py-8">
+      <main className="max-w-3xl mx-auto px-4 py-8 pb-24">
         {/* Instructions */}
-        <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 mb-8">
-          <p className="text-teal-800">
+        <div className="bg-white border border-gray-100 shadow-sm rounded-lg p-4 mb-8">
+          <p className="text-gray-700">
             <strong>Instructions:</strong> For each statement, select the rating that best describes you.
             Answer honestly about where you are today, not where you want to be.
             All questions are optional - skip any you prefer not to answer.
@@ -132,7 +142,7 @@ export default function QuestionnairePage() {
         </div>
 
         {/* Questions */}
-        <div className="space-y-6">
+        <div className="space-y-4">
           {questions.map((question, index) => (
             <div
               key={question.id}
@@ -147,9 +157,9 @@ export default function QuestionnairePage() {
                   <label
                     key={value}
                     className={`
-                      flex items-center gap-2 px-4 py-2 rounded-lg border cursor-pointer transition-all
+                      flex items-center gap-2 px-4 py-2 rounded-lg border cursor-pointer transition-colors
                       ${responses.get(question.id) === value
-                        ? 'bg-teal-600 border-teal-600 text-white'
+                        ? 'border-teal-500 bg-teal-50 text-teal-700'
                         : 'bg-white border-gray-200 text-gray-700 hover:border-teal-300'
                       }
                     `}
@@ -185,7 +195,7 @@ export default function QuestionnairePage() {
               <label
                 key={team.id}
                 className={`
-                  flex items-start gap-3 p-4 rounded-lg border cursor-pointer transition-all
+                  flex items-start gap-3 p-4 rounded-lg border cursor-pointer transition-colors
                   ${teamInterests.has(team.name)
                     ? 'bg-teal-50 border-teal-300'
                     : 'bg-white border-gray-200 hover:border-teal-200'
@@ -205,36 +215,38 @@ export default function QuestionnairePage() {
             ))}
           </div>
         </div>
+      </main>
 
-        {/* Submit Button */}
-        <div className="mt-8 text-center">
+      {/* Sticky Submit Button */}
+      <div className="sticky bottom-0 bg-gray-50 py-4 border-t border-gray-200">
+        <div className="max-w-3xl mx-auto px-4">
           {error && (
-            <p className="text-red-500 mb-4">{error}</p>
+            <p className="text-red-600 mb-2 text-center text-sm">{error}</p>
           )}
 
           <button
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-4 px-12 rounded-lg text-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-4 rounded-lg text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? (
-              <span className="flex items-center gap-2">
+              <span className="flex items-center justify-center gap-2">
                 <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-                Processing...
+                Calculating Your Results...
               </span>
             ) : (
               'See My Results'
             )}
           </button>
 
-          <p className="text-sm text-gray-500 mt-4">
+          <p className="text-sm text-gray-500 mt-2 text-center">
             You&apos;ve answered {answeredCount} of {totalQuestions} questions
           </p>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

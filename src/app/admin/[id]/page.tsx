@@ -23,19 +23,19 @@ export default function AdminAssessmentDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-600"></div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
       </div>
     );
   }
 
   if (!assessment) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <p className="text-gray-600 mb-4">Assessment not found</p>
           <Link href="/admin" className="text-teal-600 hover:text-teal-700 font-medium">
-            ← Back to Dashboard
+            &larr; Back to Dashboard
           </Link>
         </div>
       </div>
@@ -57,15 +57,15 @@ export default function AdminAssessmentDetail() {
   ].sort((a, b) => b.score - a.score);
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow">
+      <header className="bg-white shadow-sm">
         <div className="max-w-5xl mx-auto px-4 py-6">
           <Link
             href="/admin"
             className="text-teal-600 hover:text-teal-700 font-medium mb-2 inline-block"
           >
-            ← Back to Dashboard
+            &larr; Back to Dashboard
           </Link>
           <h1 className="text-2xl font-bold text-gray-900">
             {assessment.first_name} {assessment.last_name}
@@ -79,7 +79,7 @@ export default function AdminAssessmentDetail() {
 
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-6">
         {/* Gift Scores */}
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Gift Scores</h2>
 
           <div className="grid md:grid-cols-3 gap-4 mb-6">
@@ -106,7 +106,7 @@ export default function AdminAssessmentDetail() {
                   {giftDisplayNames[gift as GiftCategory]}
                 </div>
                 <div className="flex-1">
-                  <div className="w-full bg-gray-200 rounded-full h-3">
+                  <div className="w-full bg-gray-100 rounded-full h-3">
                     <div
                       className={`h-3 rounded-full ${
                         score >= 16 ? 'bg-green-500' :
@@ -127,7 +127,7 @@ export default function AdminAssessmentDetail() {
 
         {/* Team Interests */}
         {assessment.team_interests && assessment.team_interests.length > 0 && (
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Team Interests</h2>
             <div className="flex flex-wrap gap-2">
               {assessment.team_interests.map((team, i) => (
@@ -144,7 +144,7 @@ export default function AdminAssessmentDetail() {
 
         {/* Recommendations */}
         {assessment.recommendations && assessment.recommendations.length > 0 && (
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Recommendations</h2>
             <div className="space-y-3">
               {assessment.recommendations.map((rec, i) => (
@@ -170,7 +170,7 @@ export default function AdminAssessmentDetail() {
 
         {/* All Responses */}
         {assessment.responses && assessment.responses.length > 0 && (
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">
               All Responses ({assessment.responses.length})
             </h2>
