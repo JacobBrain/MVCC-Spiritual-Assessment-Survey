@@ -12,8 +12,8 @@ interface NotificationData {
 }
 
 export async function sendAssessmentNotification(data: NotificationData) {
-  const notifyEmail = process.env.NOTIFICATION_EMAIL;
-  if (!notifyEmail) {
+  const notifyEmails = process.env.NOTIFICATION_EMAIL?.split(',').map(e => e.trim()).filter(Boolean);
+  if (!notifyEmails || notifyEmails.length === 0) {
     console.warn('NOTIFICATION_EMAIL not set — skipping notification');
     return;
   }
@@ -32,7 +32,7 @@ export async function sendAssessmentNotification(data: NotificationData) {
 
   const { error } = await resend.emails.send({
     from: process.env.RESEND_FROM_EMAIL || 'MVCC Gifts Assessment <onboarding@resend.dev>',
-    to: notifyEmail,
+    to: notifyEmails,
     subject: `New Assessment: ${data.firstName} ${data.lastName}`,
     html: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
