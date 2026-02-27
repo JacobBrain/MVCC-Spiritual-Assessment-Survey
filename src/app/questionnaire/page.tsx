@@ -8,11 +8,10 @@ import { teams } from '@/lib/teams';
 import { QuestionResponse } from '@/types';
 
 const ratingLabels = [
-  { value: 1, label: 'Not at all like me' },
+  { value: 1, label: 'Not like me' },
   { value: 2, label: 'Rarely like me' },
   { value: 3, label: 'Sometimes like me' },
-  { value: 4, label: 'Often like me' },
-  { value: 5, label: 'Very much like me' },
+  { value: 4, label: 'Regularly like me' },
 ];
 
 export default function QuestionnairePage() {

@@ -6,6 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { GiftCategory, GiftScores, Recommendation } from '@/types';
 import { giftDescriptions, giftDisplayNames } from '@/lib/questions';
+import { getTopSignUpOpportunities, getOpportunityUrl, SignUpOpportunity } from '@/lib/opportunity-links';
 
 interface AssessmentResults {
   assessmentId: string;
@@ -18,15 +19,26 @@ export default function ResultsPage() {
   const params = useParams();
   const router = useRouter();
   const [results, setResults] = useState<AssessmentResults | null>(null);
+  const [signUpOpportunities, setSignUpOpportunities] = useState<SignUpOpportunity[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const computeSignUps = (data: AssessmentResults) => {
+      // Get team interests from session storage (stored during submission)
+      const storedUser = sessionStorage.getItem('assessmentUser');
+      const teamInterests: string[] = storedUser
+        ? JSON.parse(storedUser).teamInterests || []
+        : [];
+      setSignUpOpportunities(getTopSignUpOpportunities(data.topGifts, teamInterests));
+    };
+
     // Try to get results from session storage first
     const storedResults = sessionStorage.getItem('assessmentResults');
     if (storedResults) {
       const parsed = JSON.parse(storedResults);
       if (parsed.assessmentId === params.id) {
         setResults(parsed);
+        computeSignUps(parsed);
         setLoading(false);
         return;
       }
@@ -40,6 +52,7 @@ export default function ResultsPage() {
       })
       .then((data) => {
         setResults(data);
+        computeSignUps(data);
         setLoading(false);
       })
       .catch(() => {
@@ -55,16 +68,16 @@ export default function ResultsPage() {
   };
 
   const getScoreBgColor = (score: number) => {
-    if (score >= 16) return 'bg-green-100';
-    if (score >= 12) return 'bg-blue-100';
-    if (score >= 8) return 'bg-yellow-100';
+    if (score >= 13) return 'bg-green-100';
+    if (score >= 9) return 'bg-blue-100';
+    if (score >= 6) return 'bg-yellow-100';
     return 'bg-gray-100';
   };
 
   const getScoreLabel = (score: number) => {
-    if (score >= 16) return 'Strong';
-    if (score >= 12) return 'Moderate';
-    if (score >= 8) return 'Developing';
+    if (score >= 13) return 'Strong';
+    if (score >= 9) return 'Moderate';
+    if (score >= 6) return 'Developing';
     return 'Not Primary';
   };
 
@@ -164,7 +177,7 @@ export default function ResultsPage() {
                   {giftDisplayNames[item.gift]}
                 </h4>
                 <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium mb-3 ${getScoreBgColor(item.score)} ${getScoreColor(item.score)}`}>
-                  {item.score}/20 - {getScoreLabel(item.score)}
+                  {item.score}/16 - {getScoreLabel(item.score)}
                 </div>
                 <p className="text-gray-600 text-sm">
                   {giftDescriptions[item.gift]}
@@ -189,16 +202,16 @@ export default function ResultsPage() {
                   <div className="w-full bg-gray-100 rounded-full h-4">
                     <div
                       className={`h-4 rounded-full transition-all duration-500 ${
-                        item.score >= 16 ? 'bg-green-500' :
-                        item.score >= 12 ? 'bg-blue-500' :
-                        item.score >= 8 ? 'bg-yellow-500' : 'bg-gray-400'
+                        item.score >= 13 ? 'bg-green-500' :
+                        item.score >= 9 ? 'bg-blue-500' :
+                        item.score >= 6 ? 'bg-yellow-500' : 'bg-gray-400'
                       }`}
-                      style={{ width: `${(item.score / 20) * 100}%` }}
+                      style={{ width: `${(item.score / 16) * 100}%` }}
                     ></div>
                   </div>
                 </div>
                 <div className={`w-16 text-right font-semibold ${getScoreColor(item.score)}`}>
-                  {item.score}/20
+                  {item.score}/16
                 </div>
               </div>
             ))}
@@ -208,22 +221,64 @@ export default function ResultsPage() {
             <div className="flex flex-wrap gap-4 text-sm">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded bg-green-500"></div>
-                <span>Strong (16-20)</span>
+                <span>Strong (13-16)</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded bg-blue-500"></div>
-                <span>Moderate (12-15)</span>
+                <span>Moderate (9-12)</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded bg-yellow-500"></div>
-                <span>Developing (8-11)</span>
+                <span>Developing (6-8)</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded bg-gray-400"></div>
-                <span>Not Primary (4-7)</span>
+                <span>Not Primary (4-5)</span>
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Take Your Next Step */}
+        <div className="mb-12">
+          <div className="text-center mb-8">
+            <h3 className="text-2xl font-semibold text-gray-900 mb-3">
+              Take Your Next Step
+            </h3>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Ready to put your gifts into action? Based on your results, here are
+              volunteer opportunities where you can make an impact.
+            </p>
+          </div>
+
+          {signUpOpportunities.length > 0 && (
+            <div className="grid md:grid-cols-3 gap-6 mb-8">
+              {signUpOpportunities.map((opp) => (
+                <div
+                  key={opp.id}
+                  className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col"
+                >
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                    {opp.title}
+                  </h4>
+                  <p className="text-gray-600 text-sm mb-3 flex-1">
+                    {opp.description}
+                  </p>
+                  <p className="text-sm text-teal-600 font-medium mb-4">
+                    {opp.reason}
+                  </p>
+                  <a
+                    href={getOpportunityUrl(opp.id)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-6 rounded-lg w-full text-center transition-colors"
+                  >
+                    Sign Up
+                  </a>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Recommended Teams */}
@@ -276,35 +331,26 @@ export default function ResultsPage() {
           </div>
         )}
 
-        {/* Next Steps */}
-        <div className="bg-teal-50 rounded-2xl p-8 text-center mb-8">
-          <h3 className="text-xl font-semibold text-gray-900 mb-4">
-            What&apos;s Next?
-          </h3>
-          <p className="text-gray-700 mb-6 max-w-2xl mx-auto">
-            We&apos;d love to help you connect with a ministry team that fits your gifts.
-            Someone from our team will reach out to you soon to discuss opportunities.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="https://mvccfrederick.com/serve"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors"
-            >
-              Explore Serving Opportunities
-            </a>
-            <button
-              onClick={() => {
-                sessionStorage.removeItem('assessmentUser');
-                sessionStorage.removeItem('assessmentResults');
-                router.push('/');
-              }}
-              className="bg-white hover:bg-gray-50 text-gray-700 font-semibold py-3 px-8 rounded-lg border border-gray-300 transition-colors"
-            >
-              Start Over
-            </button>
-          </div>
+        {/* Bottom Actions */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+          <a
+            href="https://mvccfrederick.com/serve"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-white hover:bg-gray-50 text-teal-600 font-semibold py-3 px-8 rounded-lg border border-teal-200 transition-colors text-center"
+          >
+            Explore All Serving Opportunities
+          </a>
+          <button
+            onClick={() => {
+              sessionStorage.removeItem('assessmentUser');
+              sessionStorage.removeItem('assessmentResults');
+              router.push('/');
+            }}
+            className="bg-white hover:bg-gray-50 text-gray-700 font-semibold py-3 px-8 rounded-lg border border-gray-300 transition-colors"
+          >
+            Start Over
+          </button>
         </div>
       </main>
 

@@ -28,7 +28,7 @@ export const giftToTeamMapping: Record<GiftCategory, string[]> = {
     "Babies & Toddlers (Nursery)",
     "School Age",
     "Adoption & Foster Support",
-    "Missions Support"
+    "Outreach Ministry"
   ],
   leadership: [
     "Middle School Students",
@@ -37,7 +37,7 @@ export const giftToTeamMapping: Record<GiftCategory, string[]> = {
     "Men's Ministry"
   ],
   evangelism: [
-    "Missions Support",
+    "Outreach Ministry",
     "Young Adult/College"
   ],
   exhortation: [
@@ -47,10 +47,10 @@ export const giftToTeamMapping: Record<GiftCategory, string[]> = {
     "Adoption & Foster Support"
   ],
   administration: [
-    "Missions Support"
+    "Outreach Ministry"
   ],
   giving: [
-    "Missions Support",
+    "Outreach Ministry",
     "Adoption & Foster Support"
   ],
   wisdom: [

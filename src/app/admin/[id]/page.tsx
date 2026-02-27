@@ -93,7 +93,7 @@ export default function AdminAssessmentDetail() {
                     <div className="text-xl font-bold text-gray-900">
                       {giftDisplayNames[gift as GiftCategory]}
                     </div>
-                    <div className="text-lg text-teal-600">{score}/20</div>
+                    <div className="text-lg text-teal-600">{score}/16</div>
                   </div>
                 );
               })}
@@ -109,16 +109,16 @@ export default function AdminAssessmentDetail() {
                   <div className="w-full bg-gray-100 rounded-full h-3">
                     <div
                       className={`h-3 rounded-full ${
-                        score >= 16 ? 'bg-green-500' :
-                        score >= 12 ? 'bg-blue-500' :
-                        score >= 8 ? 'bg-yellow-500' : 'bg-gray-400'
+                        score >= 13 ? 'bg-green-500' :
+                        score >= 9 ? 'bg-blue-500' :
+                        score >= 6 ? 'bg-yellow-500' : 'bg-gray-400'
                       }`}
-                      style={{ width: `${(score / 20) * 100}%` }}
+                      style={{ width: `${(score / 16) * 100}%` }}
                     ></div>
                   </div>
                 </div>
                 <div className="w-12 text-right font-medium text-gray-700">
-                  {score}/20
+                  {score}/16
                 </div>
               </div>
             ))}

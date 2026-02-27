@@ -23,7 +23,7 @@ export async function sendAssessmentNotification(data: NotificationData) {
   const adminUrl = `${baseUrl}/admin/${data.assessmentId}`;
 
   const giftsFormatted = data.topGifts
-    .map((g, i) => `${i + 1}. ${g.gift} (${g.score}/20)`)
+    .map((g, i) => `${i + 1}. ${g.gift} (${g.score}/16)`)
     .join('\n');
 
   const teamsFormatted = data.teamInterests.length > 0
@@ -47,7 +47,7 @@ export async function sendAssessmentNotification(data: NotificationData) {
           <tr>
             <td style="padding: 8px 12px; font-weight: bold; vertical-align: top;">Top Gifts</td>
             <td style="padding: 8px 12px;">
-              ${data.topGifts.map((g, i) => `${i + 1}. <strong>${g.gift}</strong> (${g.score}/20)`).join('<br>')}
+              ${data.topGifts.map((g, i) => `${i + 1}. <strong>${g.gift}</strong> (${g.score}/16)`).join('<br>')}
             </td>
           </tr>
           <tr>

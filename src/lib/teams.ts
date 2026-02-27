@@ -57,7 +57,7 @@ export const teams: Team[] = [
   },
   {
     id: "missions",
-    name: "Missions Support",
+    name: "Outreach Ministry",
     description: "Local and global outreach opportunities including short-term trips, partnerships, and community service.",
     link: "https://mvccfrederick.com/outreach"
   }

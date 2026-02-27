@@ -129,15 +129,15 @@ export function generateRecommendations(
 }
 
 export function getScoreInterpretation(score: number): string {
-  if (score >= 16) return "Strong";
-  if (score >= 12) return "Moderate";
-  if (score >= 8) return "Developing";
+  if (score >= 13) return "Strong";
+  if (score >= 9) return "Moderate";
+  if (score >= 6) return "Developing";
   return "Not primary";
 }
 
 export function getScoreColor(score: number): string {
-  if (score >= 16) return "text-green-600";
-  if (score >= 12) return "text-blue-600";
-  if (score >= 8) return "text-yellow-600";
+  if (score >= 13) return "text-green-600";
+  if (score >= 9) return "text-blue-600";
+  if (score >= 6) return "text-yellow-600";
   return "text-gray-500";
 }
