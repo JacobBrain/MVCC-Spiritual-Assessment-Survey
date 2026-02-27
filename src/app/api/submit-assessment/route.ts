@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { questions } from '@/lib/questions';
 import { calculateGiftScores, getTopGifts, generateRecommendations } from '@/lib/calculations';
 import { AssessmentSubmission, QuestionResponse } from '@/types';
+import { sendAssessmentNotification } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
@@ -115,6 +116,16 @@ export async function POST(request: NextRequest) {
         console.error('Recommendations error:', recsError);
       }
     }
+
+    // Send email notification (fire-and-forget — don't block the response)
+    sendAssessmentNotification({
+      firstName,
+      lastName,
+      email,
+      topGifts,
+      teamInterests,
+      assessmentId: assessment.id,
+    }).catch((err) => console.error('Notification error:', err));
 
     return NextResponse.json({
       assessmentId: assessment.id,
