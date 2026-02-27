@@ -58,6 +58,28 @@ export async function GET(
         score: giftScores[gift as GiftCategory],
       }));
 
+    // Get team interests
+    const { data: teamInterestsData } = await supabaseAdmin
+      .from('team_interests')
+      .select('team_name')
+      .eq('assessment_id', id);
+
+    // Get passions
+    const { data: passionsData } = await supabaseAdmin
+      .from('passions')
+      .select('passion_name')
+      .eq('assessment_id', id);
+
+    // Get skills
+    const { data: skillsData } = await supabaseAdmin
+      .from('skills')
+      .select('skill_name')
+      .eq('assessment_id', id);
+
+    const teamInterests = (teamInterestsData || []).map((t) => t.team_name);
+    const passions = (passionsData || []).map((p) => p.passion_name);
+    const skills = (skillsData || []).map((s) => s.skill_name);
+
     // Build recommendations array
     const formattedRecommendations: Recommendation[] = (recommendations || []).map((rec) => {
       const team = getTeamByName(rec.team_name) || {
@@ -84,6 +106,9 @@ export async function GET(
       giftScores,
       topGifts,
       recommendations: formattedRecommendations,
+      teamInterests,
+      passions,
+      skills,
     });
   } catch (error) {
     console.error('Get results error:', error);

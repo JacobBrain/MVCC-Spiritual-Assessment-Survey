@@ -1,6 +1,8 @@
 import { GiftCategory, GiftScores, QuestionResponse, Recommendation } from '@/types';
 import { teams, getTeamByName } from './teams';
 import { giftToTeamMapping } from './gift-mappings';
+import { passionToTeams } from './passion-mappings';
+import { skillToTeams } from './skill-mappings';
 
 // Question IDs that contribute to each gift score
 const giftQuestionMapping: Record<GiftCategory, number[]> = {
@@ -60,72 +62,90 @@ export function getRankedGifts(scores: GiftScores): Array<{ gift: GiftCategory; 
 
 export function generateRecommendations(
   giftScores: GiftScores,
-  userSelectedTeams: string[]
+  userSelectedTeams: string[],
+  passions: string[] = [],
+  skills: string[] = []
 ): Recommendation[] {
   const topGifts = getTopGifts(giftScores, 3);
-  const recommendations: Recommendation[] = [];
-  const addedTeams = new Set<string>();
 
-  // Collect all teams recommended by top gifts
-  const giftBasedTeamsMap = new Map<string, GiftCategory>();
-  topGifts.forEach(({ gift }) => {
+  // Score each of the 10 teams across all 4 dimensions
+  const teamScoreMap = new Map<string, { score: number; giftMatch?: GiftCategory; dimensions: Set<string> }>();
+
+  const ensureTeam = (teamName: string) => {
+    if (!teamScoreMap.has(teamName)) {
+      teamScoreMap.set(teamName, { score: 0, dimensions: new Set() });
+    }
+    return teamScoreMap.get(teamName)!;
+  };
+
+  // Gift scoring: #1 = 5pts, #2 = 4pts, #3 = 3pts
+  const giftWeights = [5, 4, 3];
+  topGifts.slice(0, 3).forEach(({ gift }, index) => {
     const teamsForGift = giftToTeamMapping[gift] || [];
-    teamsForGift.forEach(teamName => {
-      if (!giftBasedTeamsMap.has(teamName)) {
-        giftBasedTeamsMap.set(teamName, gift);
-      }
+    teamsForGift.forEach((teamName: string) => {
+      const entry = ensureTeam(teamName);
+      entry.score += giftWeights[index];
+      entry.dimensions.add('gift');
+      if (!entry.giftMatch) entry.giftMatch = gift;
     });
   });
 
-  // Priority 1: Teams that match BOTH gifts AND user interest (Perfect Match)
-  userSelectedTeams.forEach(teamName => {
-    if (giftBasedTeamsMap.has(teamName) && !addedTeams.has(teamName)) {
-      const team = getTeamByName(teamName);
-      if (team) {
-        recommendations.push({
-          team,
-          matchType: 'perfect',
-          giftMatch: giftBasedTeamsMap.get(teamName),
-          priority: 1
-        });
-        addedTeams.add(teamName);
-      }
-    }
+  // Team interest scoring: 3 pts each
+  userSelectedTeams.forEach((teamName: string) => {
+    const entry = ensureTeam(teamName);
+    entry.score += 3;
+    entry.dimensions.add('interest');
   });
 
-  // Priority 2: Teams matching top gifts (not selected by user)
-  giftBasedTeamsMap.forEach((gift, teamName) => {
-    if (!addedTeams.has(teamName)) {
-      const team = getTeamByName(teamName);
-      if (team) {
-        recommendations.push({
-          team,
-          matchType: 'gift-based',
-          giftMatch: gift,
-          priority: 2
-        });
-        addedTeams.add(teamName);
-      }
-    }
+  // Passion scoring: 2 pts each
+  passions.forEach((passion: string) => {
+    const teamNames = passionToTeams[passion] || [];
+    teamNames.forEach((teamName: string) => {
+      const entry = ensureTeam(teamName);
+      entry.score += 2;
+      entry.dimensions.add('passion');
+    });
   });
 
-  // Priority 3: User interests not matching gifts
-  userSelectedTeams.forEach(teamName => {
-    if (!addedTeams.has(teamName)) {
-      const team = getTeamByName(teamName);
-      if (team) {
-        recommendations.push({
-          team,
-          matchType: 'user-interest',
-          priority: 3
-        });
-        addedTeams.add(teamName);
-      }
-    }
+  // Skill scoring: 2 pts each
+  skills.forEach((skill: string) => {
+    const teamNames = skillToTeams[skill] || [];
+    teamNames.forEach((teamName: string) => {
+      const entry = ensureTeam(teamName);
+      entry.score += 2;
+      entry.dimensions.add('skill');
+    });
   });
 
-  // Sort by priority
-  return recommendations.sort((a, b) => a.priority - b.priority);
+  // Sort by score descending
+  const sorted = Array.from(teamScoreMap.entries())
+    .sort(([, a], [, b]) => b.score - a.score);
+
+  // Derive matchType from which dimensions contributed
+  const deriveMatchType = (dims: Set<string>): Recommendation['matchType'] => {
+    const hasGift = dims.has('gift');
+    const hasInterest = dims.has('interest');
+    if (hasGift && hasInterest) return 'perfect';
+    if (hasGift) return 'gift-based';
+    if (hasInterest) return 'user-interest';
+    return 'profile-based';
+  };
+
+  // Map scores to priority tiers: top third = 1, middle = 2, rest = 3
+  const recommendations: Recommendation[] = [];
+  sorted.forEach(([teamName, data], index) => {
+    const team = getTeamByName(teamName);
+    if (!team) return;
+    const priority = index < Math.ceil(sorted.length / 3) ? 1 : index < Math.ceil((sorted.length * 2) / 3) ? 2 : 3;
+    recommendations.push({
+      team,
+      matchType: deriveMatchType(data.dimensions),
+      giftMatch: data.giftMatch,
+      priority,
+    });
+  });
+
+  return recommendations;
 }
 
 export function getScoreInterpretation(score: number): string {

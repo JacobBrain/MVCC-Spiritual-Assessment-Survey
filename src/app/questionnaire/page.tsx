@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { questions } from '@/lib/questions';
 import { teams } from '@/lib/teams';
+import { passionOptions } from '@/lib/passion-mappings';
+import { skillOptions } from '@/lib/skill-mappings';
 import { QuestionResponse } from '@/types';
 
 const ratingLabels = [
@@ -18,6 +20,10 @@ export default function QuestionnairePage() {
   const router = useRouter();
   const [responses, setResponses] = useState<Map<number, number>>(new Map());
   const [teamInterests, setTeamInterests] = useState<Set<string>>(new Set());
+  const [passions, setPassions] = useState<Set<string>>(new Set());
+  const [passionOther, setPassionOther] = useState('');
+  const [skills, setSkills] = useState<Set<string>>(new Set());
+  const [skillOther, setSkillOther] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [user, setUser] = useState<{ firstName: string; lastName: string; email: string } | null>(null);
@@ -48,6 +54,26 @@ export default function QuestionnairePage() {
     setTeamInterests(newInterests);
   };
 
+  const handlePassionToggle = (passion: string) => {
+    const newPassions = new Set(passions);
+    if (newPassions.has(passion)) {
+      newPassions.delete(passion);
+    } else {
+      newPassions.add(passion);
+    }
+    setPassions(newPassions);
+  };
+
+  const handleSkillToggle = (skill: string) => {
+    const newSkills = new Set(skills);
+    if (newSkills.has(skill)) {
+      newSkills.delete(skill);
+    } else {
+      newSkills.add(skill);
+    }
+    setSkills(newSkills);
+  };
+
   const handleSubmit = async () => {
     if (!user) return;
 
@@ -59,6 +85,11 @@ export default function QuestionnairePage() {
     );
 
     try {
+      const allPassions = [...Array.from(passions)];
+      if (passionOther.trim()) allPassions.push(passionOther.trim());
+      const allSkills = [...Array.from(skills)];
+      if (skillOther.trim()) allSkills.push(skillOther.trim());
+
       const res = await fetch('/api/submit-assessment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -68,6 +99,8 @@ export default function QuestionnairePage() {
           email: user.email,
           responses: responseArray,
           teamInterests: Array.from(teamInterests),
+          passions: allPassions,
+          skills: allSkills,
         }),
       });
 
@@ -212,6 +245,102 @@ export default function QuestionnairePage() {
                 </div>
               </label>
             ))}
+          </div>
+        </div>
+
+        {/* Passions Section */}
+        <div className="mt-8 bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            What Are You Passionate About?
+          </h2>
+          <p className="text-gray-600 mb-6">
+            What topics or causes stir your heart? Select all that apply.
+          </p>
+
+          <div className="grid sm:grid-cols-2 gap-3">
+            {passionOptions.map((option) => (
+              <label
+                key={option.value}
+                className={`
+                  flex items-start gap-3 p-4 rounded-lg border cursor-pointer transition-colors
+                  ${passions.has(option.value)
+                    ? 'bg-purple-50 border-purple-300'
+                    : 'bg-white border-gray-200 hover:border-purple-200'
+                  }
+                `}
+              >
+                <input
+                  type="checkbox"
+                  checked={passions.has(option.value)}
+                  onChange={() => handlePassionToggle(option.value)}
+                  className="mt-1 h-5 w-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                />
+                <div>
+                  <span className="font-medium text-gray-900">{option.label}</span>
+                </div>
+              </label>
+            ))}
+          </div>
+
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Other (please specify)
+            </label>
+            <input
+              type="text"
+              value={passionOther}
+              onChange={(e) => setPassionOther(e.target.value)}
+              placeholder="e.g., Technology, Environment..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500"
+            />
+          </div>
+        </div>
+
+        {/* Skills Section */}
+        <div className="mt-8 bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            How Do You Fulfill That Passion?
+          </h2>
+          <p className="text-gray-600 mb-6">
+            What skills or abilities do you bring? Select all that apply.
+          </p>
+
+          <div className="grid sm:grid-cols-2 gap-3">
+            {skillOptions.map((option) => (
+              <label
+                key={option.value}
+                className={`
+                  flex items-start gap-3 p-4 rounded-lg border cursor-pointer transition-colors
+                  ${skills.has(option.value)
+                    ? 'bg-orange-50 border-orange-300'
+                    : 'bg-white border-gray-200 hover:border-orange-200'
+                  }
+                `}
+              >
+                <input
+                  type="checkbox"
+                  checked={skills.has(option.value)}
+                  onChange={() => handleSkillToggle(option.value)}
+                  className="mt-1 h-5 w-5 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+                />
+                <div>
+                  <span className="font-medium text-gray-900">{option.label}</span>
+                </div>
+              </label>
+            ))}
+          </div>
+
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Other (please specify)
+            </label>
+            <input
+              type="text"
+              value={skillOther}
+              onChange={(e) => setSkillOther(e.target.value)}
+              placeholder="e.g., Writing, Photography..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+            />
           </div>
         </div>
       </main>

@@ -8,6 +8,8 @@ interface NotificationData {
   email: string;
   topGifts: { gift: string; score: number }[];
   teamInterests: string[];
+  passions: string[];
+  skills: string[];
   assessmentId: string;
 }
 
@@ -28,6 +30,14 @@ export async function sendAssessmentNotification(data: NotificationData) {
 
   const teamsFormatted = data.teamInterests.length > 0
     ? data.teamInterests.join(', ')
+    : 'None selected';
+
+  const passionsFormatted = data.passions.length > 0
+    ? data.passions.join(', ')
+    : 'None selected';
+
+  const skillsFormatted = data.skills.length > 0
+    ? data.skills.join(', ')
     : 'None selected';
 
   const { error } = await resend.emails.send({
@@ -53,6 +63,14 @@ export async function sendAssessmentNotification(data: NotificationData) {
           <tr>
             <td style="padding: 8px 12px; background: #f3f4f6; font-weight: bold;">Teams Interested In</td>
             <td style="padding: 8px 12px; background: #f3f4f6;">${teamsFormatted}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 12px; font-weight: bold;">Passions</td>
+            <td style="padding: 8px 12px;">${passionsFormatted}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 12px; background: #f3f4f6; font-weight: bold;">Skills</td>
+            <td style="padding: 8px 12px; background: #f3f4f6;">${skillsFormatted}</td>
           </tr>
         </table>
 

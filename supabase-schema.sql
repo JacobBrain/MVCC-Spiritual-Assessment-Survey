@@ -45,6 +45,20 @@ CREATE TABLE team_interests (
   team_name TEXT NOT NULL
 );
 
+-- Passions table (selected checkboxes)
+CREATE TABLE passions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  assessment_id UUID REFERENCES assessments(id) ON DELETE CASCADE,
+  passion_name TEXT NOT NULL
+);
+
+-- Skills table (selected checkboxes)
+CREATE TABLE skills (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  assessment_id UUID REFERENCES assessments(id) ON DELETE CASCADE,
+  skill_name TEXT NOT NULL
+);
+
 -- Recommendations table (generated results)
 CREATE TABLE recommendations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -63,12 +77,16 @@ CREATE INDEX idx_assessments_email ON assessments(email);
 CREATE INDEX idx_assessments_top_gift_1 ON assessments(top_gift_1);
 CREATE INDEX idx_responses_assessment_id ON responses(assessment_id);
 CREATE INDEX idx_team_interests_assessment_id ON team_interests(assessment_id);
+CREATE INDEX idx_passions_assessment_id ON passions(assessment_id);
+CREATE INDEX idx_skills_assessment_id ON skills(assessment_id);
 CREATE INDEX idx_recommendations_assessment_id ON recommendations(assessment_id);
 
 -- Enable Row Level Security (RLS)
 ALTER TABLE assessments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE responses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE team_interests ENABLE ROW LEVEL SECURITY;
+ALTER TABLE passions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE skills ENABLE ROW LEVEL SECURITY;
 ALTER TABLE recommendations ENABLE ROW LEVEL SECURITY;
 
 -- For V1, allow all operations with service role key
@@ -76,4 +94,6 @@ ALTER TABLE recommendations ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow all for service role" ON assessments FOR ALL USING (true);
 CREATE POLICY "Allow all for service role" ON responses FOR ALL USING (true);
 CREATE POLICY "Allow all for service role" ON team_interests FOR ALL USING (true);
+CREATE POLICY "Allow all for service role" ON passions FOR ALL USING (true);
+CREATE POLICY "Allow all for service role" ON skills FOR ALL USING (true);
 CREATE POLICY "Allow all for service role" ON recommendations FOR ALL USING (true);

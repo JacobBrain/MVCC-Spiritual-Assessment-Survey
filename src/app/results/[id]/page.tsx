@@ -13,6 +13,9 @@ interface AssessmentResults {
   giftScores: GiftScores;
   topGifts: Array<{ gift: GiftCategory; score: number }>;
   recommendations: Recommendation[];
+  teamInterests?: string[];
+  passions?: string[];
+  skills?: string[];
 }
 
 export default function ResultsPage() {
@@ -24,12 +27,10 @@ export default function ResultsPage() {
 
   useEffect(() => {
     const computeSignUps = (data: AssessmentResults) => {
-      // Get team interests from session storage (stored during submission)
-      const storedUser = sessionStorage.getItem('assessmentUser');
-      const teamInterests: string[] = storedUser
-        ? JSON.parse(storedUser).teamInterests || []
-        : [];
-      setSignUpOpportunities(getTopSignUpOpportunities(data.topGifts, teamInterests));
+      const teamInterests = data.teamInterests || [];
+      const passions = data.passions || [];
+      const skills = data.skills || [];
+      setSignUpOpportunities(getTopSignUpOpportunities(data.topGifts, teamInterests, passions, skills));
     };
 
     // Try to get results from session storage first
@@ -89,6 +90,8 @@ export default function ResultsPage() {
         return { label: 'Based on Your Gifts', color: 'bg-teal-100 text-teal-800' };
       case 'user-interest':
         return { label: "You're Interested In", color: 'bg-blue-100 text-blue-800' };
+      case 'profile-based':
+        return { label: 'Based on Your Profile', color: 'bg-purple-100 text-purple-800' };
       default:
         return { label: '', color: '' };
     }

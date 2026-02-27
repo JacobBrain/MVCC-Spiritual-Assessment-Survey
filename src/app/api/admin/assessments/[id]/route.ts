@@ -35,6 +35,18 @@ export async function GET(
       .select('team_name')
       .eq('assessment_id', id);
 
+    // Get passions
+    const { data: passionsData } = await supabaseAdmin
+      .from('passions')
+      .select('passion_name')
+      .eq('assessment_id', id);
+
+    // Get skills
+    const { data: skillsData } = await supabaseAdmin
+      .from('skills')
+      .select('skill_name')
+      .eq('assessment_id', id);
+
     // Get recommendations
     const { data: recommendations } = await supabaseAdmin
       .from('recommendations')
@@ -46,6 +58,8 @@ export async function GET(
       ...assessment,
       responses: responses || [],
       team_interests: (teamInterests || []).map((t) => t.team_name),
+      passions: (passionsData || []).map((p) => p.passion_name),
+      skills: (skillsData || []).map((s) => s.skill_name),
       recommendations: recommendations || [],
     });
   } catch (error) {

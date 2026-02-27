@@ -1,4 +1,6 @@
 import { GiftCategory } from '@/types';
+import { passionToOpportunities } from './passion-mappings';
+import { skillToOpportunities } from './skill-mappings';
 
 const MP_BASE_URL = 'https://mvccfrederick.org/opportunity-details/?id=';
 
@@ -68,61 +70,92 @@ export interface SignUpOpportunity extends Opportunity {
   reason: string;
 }
 
+interface ScoredOpportunity {
+  id: number;
+  score: number;
+  reasons: string[];
+}
+
 /**
- * Returns the top 3 unique sign-up opportunities based on gifts and team interests.
- * Priority:
- *   1. Opportunities matching BOTH a top gift AND a selected team interest
- *   2. Opportunities matching a top gift
- * Deduplicates by opportunity ID.
+ * Scores each of the 18 opportunities across all 4 dimensions and returns top 3.
+ * Scoring:
+ *   Gift #1 match: 5 pts, Gift #2: 4 pts, Gift #3: 3 pts
+ *   Team interest match: 3 pts
+ *   Passion match: 2 pts
+ *   Skill match: 2 pts
  */
 export function getTopSignUpOpportunities(
   topGifts: Array<{ gift: GiftCategory; score: number }>,
-  teamInterests: string[]
+  teamInterests: string[],
+  passions: string[] = [],
+  skills: string[] = []
 ): SignUpOpportunity[] {
-  const seen = new Set<number>();
-  const results: SignUpOpportunity[] = [];
+  const scoreMap = new Map<number, ScoredOpportunity>();
 
-  // Build a set of opportunity IDs that come from team interests
-  const interestOpportunityIds = new Set<number>();
-  teamInterests.forEach(teamName => {
+  const ensureEntry = (id: number): ScoredOpportunity => {
+    if (!scoreMap.has(id)) {
+      scoreMap.set(id, { id, score: 0, reasons: [] });
+    }
+    return scoreMap.get(id)!;
+  };
+
+  // Gift scoring: #1 = 5pts, #2 = 4pts, #3 = 3pts
+  const giftWeights = [5, 4, 3];
+  topGifts.slice(0, 3).forEach(({ gift }, index) => {
+    const oppIds = giftToOpportunities[gift] || [];
+    const giftDisplayName = gift.charAt(0).toUpperCase() + gift.slice(1);
+    oppIds.forEach((id: number) => {
+      if (!opportunities[id]) return;
+      const entry = ensureEntry(id);
+      entry.score += giftWeights[index];
+      entry.reasons.push(`${giftDisplayName} gift`);
+    });
+  });
+
+  // Team interest scoring: 3 pts each
+  teamInterests.forEach((teamName: string) => {
     const oppId = teamToOpportunity[teamName];
-    if (oppId && oppId > 0) {
-      interestOpportunityIds.add(oppId);
+    if (oppId && oppId > 0 && opportunities[oppId]) {
+      const entry = ensureEntry(oppId);
+      entry.score += 3;
+      entry.reasons.push('your interests');
     }
   });
 
-  // Priority 1: Opportunities matching BOTH a top gift AND a team interest
-  for (const { gift } of topGifts) {
-    const oppIds = giftToOpportunities[gift] || [];
-    for (const id of oppIds) {
-      if (seen.has(id) || !interestOpportunityIds.has(id)) continue;
-      const opp = opportunities[id];
-      if (!opp) continue;
-      seen.add(id);
-      results.push({
-        ...opp,
-        reason: `Perfect match — based on your gifts and interests`,
-      });
-      if (results.length >= 3) return results;
-    }
-  }
+  // Passion scoring: 2 pts each
+  passions.forEach((passion: string) => {
+    const oppIds = passionToOpportunities[passion] || [];
+    oppIds.forEach((id: number) => {
+      if (!opportunities[id]) return;
+      const entry = ensureEntry(id);
+      entry.score += 2;
+      entry.reasons.push('your passions');
+    });
+  });
 
-  // Priority 2: Opportunities matching a top gift (not yet added)
-  for (const { gift } of topGifts) {
-    const oppIds = giftToOpportunities[gift] || [];
-    for (const id of oppIds) {
-      if (seen.has(id)) continue;
-      const opp = opportunities[id];
-      if (!opp) continue;
-      seen.add(id);
-      const giftDisplayName = gift.charAt(0).toUpperCase() + gift.slice(1);
-      results.push({
-        ...opp,
-        reason: `Matches your ${giftDisplayName} gift`,
-      });
-      if (results.length >= 3) return results;
-    }
-  }
+  // Skill scoring: 2 pts each
+  skills.forEach((skill: string) => {
+    const oppIds = skillToOpportunities[skill] || [];
+    oppIds.forEach((id: number) => {
+      if (!opportunities[id]) return;
+      const entry = ensureEntry(id);
+      entry.score += 2;
+      entry.reasons.push('your skills');
+    });
+  });
 
-  return results;
+  // Sort by score descending, take top 3
+  const sorted = Array.from(scoreMap.values())
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 3);
+
+  return sorted.map(({ id, reasons }) => {
+    const opp = opportunities[id];
+    // Deduplicate reasons
+    const uniqueReasons = [...new Set(reasons)];
+    const reason = uniqueReasons.length > 1
+      ? `Matches ${uniqueReasons.slice(0, -1).join(', ')} & ${uniqueReasons[uniqueReasons.length - 1]}`
+      : `Matches ${uniqueReasons[0]}`;
+    return { ...opp, reason };
+  });
 }

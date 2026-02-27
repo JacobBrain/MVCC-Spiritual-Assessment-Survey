@@ -11,6 +11,28 @@ export type GiftCategory =
   | 'teaching'
   | 'wisdom';
 
+export type PassionCategory =
+  | 'Education'
+  | 'Abuse'
+  | 'Finances'
+  | 'Poverty'
+  | 'Arts/Music'
+  | 'Outdoors'
+  | 'Marriage'
+  | 'Safety'
+  | 'Construction'
+  | 'Parenting'
+  | 'Health';
+
+export type SkillCategory =
+  | 'Teaching'
+  | 'Tangibly'
+  | 'Giving'
+  | 'Cooking'
+  | 'Organizing'
+  | 'Counseling'
+  | 'Designing';
+
 export interface Question {
   id: number;
   text: string;
@@ -45,7 +67,7 @@ export interface Team {
 
 export interface Recommendation {
   team: Team;
-  matchType: 'perfect' | 'gift-based' | 'user-interest';
+  matchType: 'perfect' | 'gift-based' | 'user-interest' | 'profile-based';
   giftMatch?: GiftCategory;
   priority: number;
 }
@@ -56,6 +78,8 @@ export interface AssessmentSubmission {
   email: string;
   responses: QuestionResponse[];
   teamInterests: string[];
+  passions: string[];
+  skills: string[];
 }
 
 export interface AssessmentResult {
@@ -95,6 +119,8 @@ export interface AssessmentDetail extends Assessment {
     gift_category: string;
   }>;
   team_interests: string[];
+  passions: string[];
+  skills: string[];
   recommendations: Array<{
     team_name: string;
     team_description: string;

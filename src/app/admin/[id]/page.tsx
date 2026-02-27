@@ -142,6 +142,40 @@ export default function AdminAssessmentDetail() {
           </div>
         )}
 
+        {/* Passions */}
+        {assessment.passions && assessment.passions.length > 0 && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Passions</h2>
+            <div className="flex flex-wrap gap-2">
+              {assessment.passions.map((passion, i) => (
+                <span
+                  key={i}
+                  className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800"
+                >
+                  {passion}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Skills */}
+        {assessment.skills && assessment.skills.length > 0 && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Skills</h2>
+            <div className="flex flex-wrap gap-2">
+              {assessment.skills.map((skill, i) => (
+                <span
+                  key={i}
+                  className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Recommendations */}
         {assessment.recommendations && assessment.recommendations.length > 0 && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">

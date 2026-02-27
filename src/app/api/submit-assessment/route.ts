@@ -8,7 +8,7 @@ import { sendAssessmentNotification } from '@/lib/email';
 export async function POST(request: NextRequest) {
   try {
     const body: AssessmentSubmission = await request.json();
-    const { firstName, lastName, email, responses, teamInterests } = body;
+    const { firstName, lastName, email, responses, teamInterests, passions = [], skills = [] } = body;
 
     // Validate required fields
     if (!firstName || !lastName || !email) {
@@ -93,8 +93,40 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Save passions
+    if (passions.length > 0) {
+      const passionRecords = passions.map((passionName: string) => ({
+        assessment_id: assessment.id,
+        passion_name: passionName,
+      }));
+
+      const { error: passionsError } = await supabaseAdmin
+        .from('passions')
+        .insert(passionRecords);
+
+      if (passionsError) {
+        console.error('Passions error:', passionsError);
+      }
+    }
+
+    // Save skills
+    if (skills.length > 0) {
+      const skillRecords = skills.map((skillName: string) => ({
+        assessment_id: assessment.id,
+        skill_name: skillName,
+      }));
+
+      const { error: skillsError } = await supabaseAdmin
+        .from('skills')
+        .insert(skillRecords);
+
+      if (skillsError) {
+        console.error('Skills error:', skillsError);
+      }
+    }
+
     // Generate recommendations
-    const recommendations = generateRecommendations(giftScores, teamInterests);
+    const recommendations = generateRecommendations(giftScores, teamInterests, passions, skills);
 
     // Save recommendations
     if (recommendations.length > 0) {
@@ -124,6 +156,8 @@ export async function POST(request: NextRequest) {
       email,
       topGifts,
       teamInterests,
+      passions,
+      skills,
       assessmentId: assessment.id,
     }).catch((err) => console.error('Notification error:', err));
 
